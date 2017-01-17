@@ -44,7 +44,7 @@
     "start:hmr": "npm run server:dev:hmr",
     "start": "npm run server:dev",
     "test": "karnpma start",
-    "test:server": "NODE_ENV=test mocha",
+    "test:server": "set NODE_ENV=test && mocha",
     "test:server:w": "NODE_ENV=test mocha -w",
     "tslint": "tslint",
     "typedoc": "typedoc",

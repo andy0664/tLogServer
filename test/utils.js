@@ -26,9 +26,9 @@ beforeEach((done) => {
       });
     }
 
-    ['fs.files','fs.chunks'].forEach(collection =>
+    /*['fs.files','fs.chunks'].forEach(collection =>
       mongoose.connection.db.dropCollection(collection,(error, status) => {})
-    );
+    );*/
 
     return done();
   }
