@@ -14,6 +14,7 @@
 // Grab the Mongoose module
 import mongoose from 'mongoose';
 mongoose.Promise = global.Promise;
+let Schema = mongoose.Schema;
 
 // Import library to hash passwords
 import bcrypt from 'bcrypt-nodejs';
@@ -30,7 +31,11 @@ let userSchema = mongoose.Schema({
     email : { type : String, unique : true }
   },
 
-  roles : { type : [String] }
+  roles : { type : [String] },
+  friends : [{
+    type:Schema.Types.ObjectId,
+    ref:'User'
+  }]
 });
 
 // ## Methods
@@ -45,6 +50,10 @@ userSchema.methods.generateHash = function(password) {
 userSchema.methods.validPassword = function(password) {
 
   return bcrypt.compareSync(password, this.local.password);
+};
+
+userSchema.statics.load = function(id) {
+  return this.findById(id).populate('friends','local.username');
 };
 
 // Create the model for users and expose it to the app
