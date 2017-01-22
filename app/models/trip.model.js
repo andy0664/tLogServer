@@ -14,6 +14,10 @@ const TripSchema = new Schema({
   description: String,
   begin: Date,
   end: Date,
+  share:{
+    type: Boolean,
+    "default": false
+  },
   createdAt: {
     type: Date,
     "default": Date.now
