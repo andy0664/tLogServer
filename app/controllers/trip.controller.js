@@ -91,3 +91,13 @@ export const update = (req,res,next) => {
   }
   } catch(err) {res.status(500).json({message: err.message})}
 };
+
+export const search=(req,res,next)=>{
+  try{
+    Trip.find({'name':new RegExp(req.params.searchValue,'i'),share:true}).select('_id name')
+      .then(trips => res.json(trips))
+      .catch(err => res.status(400).json({message:err.message}))
+  }catch (err){
+    res.status(500).json({message: err.message})
+  }
+};
