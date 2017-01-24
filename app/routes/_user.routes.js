@@ -16,8 +16,12 @@ const tripOwnerOrAdminCondition = req => tripOwnerCondition(req) || req.user.rol
 export default (app, router, auth, admin) => {
   router.get('/user/search/:searchValue',auth,user.search);
   router.param('userID',user.load);
-  router.get('/user/:userID',user.show);
+  router.get('/user/openFriendRequest',auth,user.openFriendRequest)
   router.get('/user/other/:userID',auth,user.getUser,user.show)
+  router.get('/user/:userID',user.show);
+  router.post('/user/friendRequest',auth,user.friendRequest)
+  router.get('/user/checkFriend/:userID',auth,user.checkFriend)
+  router.get('/user/removeFriend/:userID',auth,user.removeFriend,user.checkFriend)
  /* router.post('/trip/addpoi/:tripId',auth,checkPermission(tripOwnerCondition),poi.create,trip.addPOI,trip.show);
   router.patch('/trip/:tripId',auth,checkPermission(tripOwnerCondition),trip.update,trip.show);
   router.post('/trip',auth,trip.create,trip.show);
