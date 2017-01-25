@@ -31,7 +31,7 @@ export const load = (req, res, next, id) => {
   }
 };
 
-export const getUser = (req, res, next) => {
+export const getOtherUser = (req, res, next) => {
   try {
     console.log("UserGet: " + JSON.stringify(req.specUser));
     let newUser = {
@@ -78,6 +78,7 @@ export const removeFriend = (req,res,next)=>{
   try{
     User.update({_id:req.user.id},{$pull:{friends:req.specUser._id}})
       .then(() => FriendRequest.remove({userFrom:req.user.id,userTo:req.specUser._id})
+        .then(()=>User.update({_id:req.specUser._id},{$pull:{friends:req.user.id}}))
         .then(()=>next()))
       .catch(err => res.status(400).json({message: err.message}))
   }catch (err) {
@@ -87,8 +88,7 @@ export const removeFriend = (req,res,next)=>{
 
 export const openFriendRequest = (req,res)=>{
   try{
-    console.log("Hallo: ");
-    FriendRequest.find({userTo:req.user.id})
+    FriendRequest.find({userTo:req.user.id}).populate('userFrom','local.username')
       .then((data) => res.json(data))
       .catch(err => {console.log("UserError: ");res.status(400).json({message: err.message})})
   }catch (err) {
@@ -96,5 +96,34 @@ export const openFriendRequest = (req,res)=>{
   }
 }
 
+export const acceptFriendRequest = (req,res)=>{
+  try{
+    User.update({_id:req.user.id},{$push:{friends:req.specUser._id}})
+      .then(()=>User.update({_id:req.specUser._id},{$push:{friends:req.user.id}})
+      .then(()=>FriendRequest.remove({userFrom:req.specUser._id,userTo:req.user.id})
+        .then(()=>res.json({message: "friend added"}))))
+      .catch(err => {console.log("UserError: ");res.status(400).json({message: err.message})})
+  }catch (err) {
+    res.status(500).json({message: err.message})
+  }
+}
+
+export const rejectFriendRequest = (req,res)=>{
+  try{
+    FriendRequest.remove({userFrom:req.specUser._id,userTo:req.user.id})
+      .then(()=>res.json({message: "request rejected"}))
+      .catch(err => {console.log("UserError: ");res.status(400).json({message: err.message})})
+  }catch (err) {
+    res.status(500).json({message: err.message})
+  }
+}
+
+export const getUserFriends = (req,res)=>{
+  try{
+    res.json(req.specUser.friends)
+  }catch (err) {
+    res.status(500).json({message: err.message})
+  }
+}
 
 export const show = (req, res) => res.json(req.specUser);

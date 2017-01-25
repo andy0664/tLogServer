@@ -17,7 +17,10 @@ export default (app, router, auth, admin) => {
   router.get('/user/search/:searchValue',auth,user.search);
   router.param('userID',user.load);
   router.get('/user/openFriendRequest',auth,user.openFriendRequest)
-  router.get('/user/other/:userID',auth,user.getUser,user.show)
+  router.get('/user/getFriends/:userID',auth,user.getUserFriends)
+  router.get('/user/acceptRequest/:userID',auth,user.acceptFriendRequest)
+  router.get('/user/rejectRequest/:userID',auth,user.rejectFriendRequest)
+  router.get('/user/other/:userID',auth,user.getOtherUser,user.show)
   router.get('/user/:userID',user.show);
   router.post('/user/friendRequest',auth,user.friendRequest)
   router.get('/user/checkFriend/:userID',auth,user.checkFriend)
