@@ -17,6 +17,9 @@ export default (app, router, auth, admin) => {
   router.patch('/trip/:tripId',auth,checkPermission(tripOwnerCondition),trip.update,trip.show);
   router.post('/trip',auth,trip.create,trip.show);
   router.get('/trip',auth,trip.list);
+  router.get('/trip/like/:tripID',auth,trip.likeTrip)
+  router.get('/trip/unlike/:tripID',auth,trip.unlikeTrip)
+  router.get('/trip/checkLike/:tripID',auth,trip.checkLike)
   router.param('tripId',trip.load);
   router.get('/trip/mine',auth,trip.mine);
   router.get('/trip/count',auth,trip.count);

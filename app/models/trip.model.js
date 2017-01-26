@@ -32,6 +32,12 @@ const TripSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: 'POI'
     }
+  ],
+  likes:[
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+    }
   ]
 });
 
@@ -49,7 +55,7 @@ TripSchema.path('creator').validate(function(creator) {
 }, 'Creator must be specified');
 
 TripSchema.statics.load = function(id) {
-  return this.findById(id).populate('creator', 'local.username').populate('pois');
+  return this.findById(id).populate('creator', 'local.username').populate('pois').populate('likes','local.username');
 };
 
 export default mongoose.model('Trip',TripSchema);

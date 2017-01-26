@@ -101,3 +101,32 @@ export const search=(req,res,next)=>{
     res.status(500).json({message: err.message})
   }
 };
+
+export const likeTrip=(req,res)=>{
+  try{
+    Trip.update({_id:req.params.tripID},{$push:{likes:req.user.id}})
+      .then(()=>res.json("liked trip"))
+      .catch(err => res.status(400).json({message:err.message}))
+  }catch (err){
+    res.status(500).json({message: err.message})
+  }
+}
+
+export const unlikeTrip=(req,res)=>{
+  try{
+    Trip.update({_id:req.params.tripID},{$pull:{likes:req.user.id}})
+      .then(()=>res.json("unliked trip"))
+      .catch(err => res.status(400).json({message:err.message}))
+  }catch (err){
+    res.status(500).json({message: err.message})
+  }
+}
+
+export const checkLike = (req,res)=>{
+  try{
+    Trip.count({_id:req.params.tripID,likes:req.user.id})
+      .then(count=>res.json(count))
+  }catch (err){
+    res.status(500).json({message: err.message})
+  }
+}
