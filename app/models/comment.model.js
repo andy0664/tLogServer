@@ -14,7 +14,7 @@ const commentSchema = Schema({
     ref: 'Trip'
   },
   comment:{
-    type:string,
+    type:String,
     required:true
   },
   createdAt: {
