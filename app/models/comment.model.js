@@ -43,7 +43,7 @@ commentSchema.path('comment').validate(function(comment) {
 commentSchema.statics.load = function(id) {
   return this.findOne({
     _id: id
-  }).populate('creator','local.username').populate('trip','trip.name');
+  }).populate('creator','local.username').populate('trip','name');
 };
 
 export default mongoose.model('Comment',commentSchema);
