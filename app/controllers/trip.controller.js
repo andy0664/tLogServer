@@ -78,6 +78,16 @@ export const count = (req,res,next) =>{
   } catch(err) {res.status(500).json({message: err.message})}
 };
 
+export const locationPublicTrips = (req,res,next)=>{
+  try{
+    Promise.all(req.trips.map(trip=>Trip.find({_id:trip.trip,share:true}).select('_id name')))
+      .then(trips=>{console.log("Trip Location: "+trips);res.json(trips.map(trip=>trip[0]))})
+      .catch(err => res.status(400).json({message:err.message}))
+  }catch (err){
+    res.status(500).json({message: err.message})
+  }
+}
+
 export const update = (req,res,next) => {
   try {
   if (req.body._id && req.trip._id.toString() !== req.body._id) {

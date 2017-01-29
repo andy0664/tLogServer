@@ -21,10 +21,18 @@ const poiSchema = Schema({
       type: [Number]
     }
   },
+  sumCoordinates:{
+    type:Number
+  },
   creator: {
     type: Schema.ObjectId,
     required: true,
     ref: 'User'
+  },
+  trip:{
+    type: Schema.ObjectId,
+    required: true,
+    ref: 'Trip'
   },
   createdAt: {
     type: Date,
@@ -55,10 +63,14 @@ poiSchema.path('creator').validate(function(creator) {
   return creator != null;
 }, 'Creator must be specified');
 
+poiSchema.path('trip').validate(function(trip) {
+  return trip != null;
+}, 'Trip must be specified');
+
 poiSchema.statics.load = function(id) {
   return this.findOne({
     _id: id
-  }).populate('creator','local.username');
+  }).populate('creator','local.username').populate('trip','name');
 };
 
 export default mongoose.model('POI',poiSchema);

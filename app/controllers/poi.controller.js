@@ -9,10 +9,13 @@ import fs from "fs";
 grid.mongo = mongoose.mongo;
 
 
-
 export const create = (req, res, next) => {
   const poi = new POI(req.body);
   poi.creator = req.user.id;
+  poi.sumCoordinates = req.body.loc.coordinates[0] + req.body.loc.coordinates[1];
+  if (req.trip._id) {
+    poi.trip = req.trip._id;
+  }
   poi.save()
     .then(poi => POI.load(poi._id))
     .then(poi => {
@@ -62,16 +65,27 @@ export const update = (req, res, next) => {
         req.poi = poi;
         next()
       })
-      .catch(err => res.status(400).json({message: "This POI could not be updated: "+ err.message}));
+      .catch(err => res.status(400).json({message: "This POI could not be updated: " + err.message}));
   } catch (err) {
     res.status(500).json({message: err.message})
   }
 };
+export const findByLocation = (req, res,next) => {
+  try {
+    let startPoint = parseFloat(req.query.startPoint);
+    let endPoint = parseFloat(req.query.endPoint);
+    POI.find({$and:[{sumCoordinates:{$gte:startPoint}}, {sumCoordinates:{$lte:endPoint}}]}).select('trip')
+      .then((data)=> {console.log("Data found: "+JSON.stringify(data));req.trips=data;next();})
+      .catch(err => res.status(400).json({message: "This POI could not be updated: " + err.message}));
+  } catch (err) {
+    res.status(500).json({message: err.message})
+  }
+}
 
 export const destroy = (req, res, next) => {
   try {
     req.poi.remove()
-      .then(()=>next())
+      .then(() => next())
       .catch(err => res.status(500).json({message: "Could not delete this POI"}))
   } catch (err) {
     res.status(500).json({message: err.message})
@@ -81,10 +95,10 @@ export const destroy = (req, res, next) => {
 export const image = (req, res) => {
   try {
     const gfs = grid(mongoose.connection.db);
-    console.log("id="+req.params.imageId);
+    console.log("id=" + req.params.imageId);
     let ObjectID = mongoose.mongo.ObjectID;
     gfs.createReadStream({_id: new ObjectID(req.params.imageId)}).pipe(res);
-  } catch(err) {
+  } catch (err) {
     res.status(500).json({message: err.message})
   }
 };
@@ -124,7 +138,7 @@ export const addImage = function (req, res) {
           message: "Could not add image to POI " + err.message
         }));
     });
-    s.on('error',  error => {
+    s.on('error', error => {
       res.status(500).send({
         message: "Could not save image"
       });
