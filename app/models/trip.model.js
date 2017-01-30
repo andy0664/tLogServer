@@ -27,6 +27,9 @@ const TripSchema = new Schema({
     required: true,
     ref: 'User'
   },
+  sumCoords: [{
+    type:Number
+  }],
   pois: [
     {
       type: Schema.Types.ObjectId,

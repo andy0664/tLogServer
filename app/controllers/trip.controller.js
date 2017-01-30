@@ -54,6 +54,7 @@ export const mine = (req,res,next) =>{
 export const addPOI = (req,res,next) =>{
   try {
     req.trip.pois.push(req.poi);
+    req.trip.sumCoords.push(req.poi.sumCoordinates);
     req.trip.save()
       .then(trip => Trip.load(trip._id))
       .then(trip => {req.trip=trip; next()})
@@ -78,10 +79,12 @@ export const count = (req,res,next) =>{
   } catch(err) {res.status(500).json({message: err.message})}
 };
 
-export const locationPublicTrips = (req,res,next)=>{
+export const findByLocation = (req,res)=>{
   try{
-    Promise.all(req.trips.map(trip=>Trip.find({_id:trip.trip,share:true}).select('_id name')))
-      .then(trips=>{console.log("Trip Location: "+trips);res.json(trips.map(trip=>trip[0]))})
+    let startPoint = parseFloat(req.query.startPoint);
+    let endPoint = parseFloat(req.query.endPoint);
+    Trip.find({$and:[{sumCoords:{$gte:startPoint}},{sumCoords:{$lte:endPoint}},{share:true}]}).select('_id name')
+      .then(data=>res.json(data))
       .catch(err => res.status(400).json({message:err.message}))
   }catch (err){
     res.status(500).json({message: err.message})

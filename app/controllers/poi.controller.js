@@ -70,7 +70,8 @@ export const update = (req, res, next) => {
     res.status(500).json({message: err.message})
   }
 };
-export const findByLocation = (req, res,next) => {
+
+/*export const findByLocation = (req, res,next) => {
   try {
     let startPoint = parseFloat(req.query.startPoint);
     let endPoint = parseFloat(req.query.endPoint);
@@ -80,7 +81,7 @@ export const findByLocation = (req, res,next) => {
   } catch (err) {
     res.status(500).json({message: err.message})
   }
-}
+}*/
 
 export const destroy = (req, res, next) => {
   try {

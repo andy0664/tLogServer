@@ -17,7 +17,7 @@ export default (app, router, auth, admin) => {
   router.patch('/trip/:tripId',auth,checkPermission(tripOwnerCondition),trip.update,trip.show);
   router.post('/trip',auth,trip.create,trip.show);
   router.get('/trip',auth,trip.list);
-  router.get('/trip/findByLocation',auth,poi.findByLocation,trip.locationPublicTrips)
+  router.get('/trip/findByLocation',auth,trip.findByLocation)
   router.get('/trip/like/:tripID',auth,trip.likeTrip);
   router.get('/trip/unlike/:tripID',auth,trip.unlikeTrip);
   router.get('/trip/checkLike/:tripID',auth,trip.checkLike);
