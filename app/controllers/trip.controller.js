@@ -117,28 +117,49 @@ export const search=(req,res,next)=>{
 
 export const likeTrip=(req,res)=>{
   try{
-    Trip.update({_id:req.params.tripID},{$push:{likes:req.user.id}})
+    Trip.update({_id:req.params.tripID},{$push:{likes:req.user.id},$inc:{likeCount:1}})
       .then(()=>res.json("liked trip"))
       .catch(err => res.status(400).json({message:err.message}))
   }catch (err){
     res.status(500).json({message: err.message})
   }
-}
+};
 
 export const unlikeTrip=(req,res)=>{
   try{
-    Trip.update({_id:req.params.tripID},{$pull:{likes:req.user.id}})
+    Trip.update({_id:req.params.tripID},{$pull:{likes:req.user.id},$inc:{likeCount:-1}})
       .then(()=>res.json("unliked trip"))
       .catch(err => res.status(400).json({message:err.message}))
   }catch (err){
     res.status(500).json({message: err.message})
   }
-}
+};
 
 export const checkLike = (req,res)=>{
   try{
     Trip.count({_id:req.params.tripID,likes:req.user.id})
       .then(count=>res.json(count))
+      .catch(err => res.status(400).json({message:err.message}))
+  }catch (err){
+    res.status(500).json({message: err.message})
+  }
+};
+
+export const topTenTrips = (req,res)=>{
+  try{
+    let startPoint = parseFloat(req.query.startPoint || '0.0');
+    let endPoint = parseFloat(req.query.endPoint || '0.0');
+    let dateFilter = req.query.dateFilter;
+
+    if(startPoint===0.0 && endPoint===0.0)
+      Trip.find({share:true, createdAt:{$gte:dateFilter}}).sort({likeCount:-1}).limit(10).select('_id name')
+        .then(data=>res.json(data))
+        .catch(err => res.status(400).json({message:err.message}));
+    else
+      Trip.find({$and:[{sumCoords:{$gte:startPoint}},{sumCoords:{$lte:endPoint}},{share:true},{createdAt:{$gte:dateFilter}}]})
+        .sort({likeCount:-1}).limit(10).select('_id name')
+        .then(data=>res.json(data))
+        .catch(err => res.status(400).json({message:err.message}));
   }catch (err){
     res.status(500).json({message: err.message})
   }

@@ -41,7 +41,11 @@ const TripSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: 'User'
     }
-  ]
+  ],
+  likeCount:
+    {type:Number,
+      "default": 0
+    }
 });
 
 
