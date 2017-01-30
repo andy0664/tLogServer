@@ -152,12 +152,12 @@ export const topTenTrips = (req,res)=>{
     let dateFilter = req.query.dateFilter;
 
     if(startPoint===0.0 && endPoint===0.0)
-      Trip.find({share:true, createdAt:{$gte:dateFilter}}).sort({likeCount:-1}).limit(10).select('_id name')
+      Trip.find({share:true, createdAt:{$gte:dateFilter}}).sort({likeCount:-1}).limit(10).select('_id name likeCount description creator').populate('creator','local.username')
         .then(data=>res.json(data))
         .catch(err => res.status(400).json({message:err.message}));
     else
       Trip.find({$and:[{sumCoords:{$gte:startPoint}},{sumCoords:{$lte:endPoint}},{share:true},{createdAt:{$gte:dateFilter}}]})
-        .sort({likeCount:-1}).limit(10).select('_id name')
+        .sort({likeCount:-1}).limit(10).select('_id name likeCount description creator').populate('creator','local.username')
         .then(data=>res.json(data))
         .catch(err => res.status(400).json({message:err.message}));
   }catch (err){
