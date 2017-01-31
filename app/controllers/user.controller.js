@@ -1,12 +1,11 @@
-/**
- * Created by Andreas on 22/01/2017.
- */
-
 import User from '../models/user.model';
 import Trip from '../models/trip.model';
 import FriendRequest from '../models/friendRequest.model';
 import mongoose from "mongoose";
-
+import grid from "gridfs-stream";
+import gm from "gm";
+import fs from "fs";
+grid.mongo = mongoose.mongo;
 
 export const search = (req, res, next) => {
   try {
@@ -26,6 +25,22 @@ export const load = (req, res, next, id) => {
         next()
       })
       .catch(err => res.status(400).json({message: `Could not load this User: ${err.message}`}))
+  } catch (err) {
+    res.status(500).json({message: err.message})
+  }
+};
+
+export const update = (req, res, next) => {
+  try {
+    const user = Object.assign(req.specUser, req.body);
+    console.log(JSON.stringify(user));
+    user.save()
+      .then(user => User.load(user._id))
+      .then(user => {
+        req.specUser = user;
+        next();
+      })
+      .catch(err => res.status(400).json({message: "This User could not be updated: " + err.message}));
   } catch (err) {
     res.status(500).json({message: err.message})
   }
@@ -125,5 +140,62 @@ export const getUserFriends = (req,res)=>{
     res.status(500).json({message: err.message})
   }
 }
+
+export const image = (req, res) => {
+  try {
+    const gfs = grid(mongoose.connection.db);
+    console.log("id=" + req.params.imageId);
+    let ObjectID = mongoose.mongo.ObjectID;
+    gfs.createReadStream({_id: new ObjectID(req.params.imageId)}).pipe(res);
+  } catch (err) {
+    res.status(500).json({message: err.message})
+  }
+};
+
+export const addImage = function (req, res) {
+  try {
+    const gfs = grid(mongoose.connection.db);
+    const maxDimension = process.env.MAX_IMAGE_DIMENSION || 500;
+    if (req.files.file == null) {
+      res.status(400).json({
+        message: "There needs to be an element called 'file' that contains the image"
+      });
+      return;
+    }
+    const file = req.files.file;
+    const wStream = gfs.createWriteStream({
+      mode: 'w',
+      filename: file.name,
+      content_type: file.type,
+      metadata: {
+        user: req.user._id,
+        creator: req.user.id
+      }
+    });
+    const s = gm(file.path).resize(maxDimension).stream().pipe(wStream);
+    s.on('close', file => {
+      const user = req.user;
+      user.images.push({
+        id: file._id,
+        uploaded: Date.now()
+      });
+      user.save()
+        .then(user => res.json(file))
+        .catch(err => res.status(500).send({
+          message: "Could not add image to user " + err.message
+        }));
+    });
+    s.on('error', error => {
+      res.status(500).send({
+        message: "Could not save image"
+      });
+    });
+  } catch (error) {
+    console.log(error.stack);
+    res.status(500).send({
+      message: "Could not save image " + error.message
+    });
+  }
+};
 
 export const show = (req, res) => res.json(req.specUser);

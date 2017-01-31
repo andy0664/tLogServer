@@ -32,10 +32,21 @@ let userSchema = mongoose.Schema({
   },
 
   roles : { type : [String] },
+
   friends : [{
     type:Schema.Types.ObjectId,
     ref:'User'
-  }]
+  }],
+
+  images: [
+    {
+      id: Schema.Types.ObjectId,
+      uploaded: {
+        type: Date,
+        "default": Date.now
+      }
+    }
+  ]
 });
 
 // ## Methods

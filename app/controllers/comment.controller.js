@@ -1,6 +1,3 @@
-/**
- * Created by Andreas on 26/01/2017.
- */
 
 import Comment from '../models/comment.model';
 
