@@ -33,20 +33,15 @@ let userSchema = mongoose.Schema({
 
   roles : { type : [String] },
 
+  tripNotifications:{
+    type:Boolean,
+    Default: true
+  },
+
   friends : [{
     type:Schema.Types.ObjectId,
     ref:'User'
   }],
-
-  images: [
-    {
-      id: Schema.Types.ObjectId,
-      uploaded: {
-        type: Date,
-        "default": Date.now
-      }
-    }
-  ]
 });
 
 // ## Methods
