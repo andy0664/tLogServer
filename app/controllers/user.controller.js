@@ -1,6 +1,7 @@
 import User from '../models/user.model';
 import Trip from '../models/trip.model';
 import FriendRequest from '../models/friendRequest.model';
+import Notification from '../models/notification.model';
 
 
 export const search = (req, res, next) => {
@@ -134,6 +135,28 @@ export const rejectFriendRequest = (req,res)=>{
 export const getUserFriends = (req,res)=>{
   try{
     res.json(req.specUser.friends)
+  }catch (err) {
+    res.status(500).json({message: err.message})
+  }
+}
+
+export const checkNotification = (req,res)=>{
+  try{
+    console.log("checkNotification");
+    Notification.find({userTo:req.user.id, displayed:false}).sort('-createdAt')
+      .populate('userFrom','local.username').populate('userTo','local.username').populate('trip','name')
+      .then(data => res.json(data))
+      .catch(err => res.status(400).json({message: err.message}))
+  }catch(err) {
+    res.status(500).json({message: err.message})
+  }
+}
+
+export const updateReadNotification = (req,res)=> {
+  try{
+    Notification.findByIdAndUpdate(req.params.notificationID,{$set:{displayed:true}})
+      .then(data => res.json({message:'displayed success'}))
+      .catch(err => res.status(400).json({message: err.message}))
   }catch (err) {
     res.status(500).json({message: err.message})
   }
