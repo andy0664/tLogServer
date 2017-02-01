@@ -3,6 +3,8 @@
  */
 
 import Trip from '../models/trip.model';
+import Notification from '../models/notification.model';
+import User from '../models/user.model';
 
 export const show = (req,res) => {
   try {
@@ -16,9 +18,23 @@ export const create = (req,res,next) => {
     trip.creator = req.user.id;
     trip.save()
       .then(trip => Trip.load(trip._id))
-      .then((trip)=>{req.trip = trip; next()})
+      .then((trip)=>{ if(trip.share){req.trip = trip;next()}else {res.json(trip)} })
       .catch(err => res.status(400).json({message: `Could not create this Trip: ${err.message}`}))
   } catch(err) {res.status(500).json({message: `Could not create this Trip: ${err.message}`})}
+};
+
+export const addNotifications = (req,res,next)=>{
+  try{
+    let notification = new Notification();
+    User.load(req.user.id)
+      .then(user => {Promise.all(user.friends.map(friend => {
+        notification = new Notification({userTo:friend._id,userFrom:req.user.id,trip:req.trip._id});
+        console.log("New Entry: "+JSON.stringify(notification));
+        notification.save();
+      }))
+        .then(res=>next())})
+      .catch(err => res.status(400).json({message: `Could not create notifications: ${err.message}`}))
+  }catch(err) {res.status(500).json({message: `Could not create notifications: ${err.message}`})}
 };
 
 export const list = (req,res,next) => {

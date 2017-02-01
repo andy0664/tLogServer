@@ -23,11 +23,13 @@ const isOwner = (req,res,next) =>
 export default (app, router, auth, admin) => {
   router.get('/user/search/:searchValue',auth,user.search);
   router.param('userID',user.load);
-  router.get('/user/openFriendRequest',auth,user.openFriendRequest)
-  router.get('/user/getFriends/:userID',auth,user.getUserFriends)
-  router.get('/user/acceptRequest/:userID',auth,user.acceptFriendRequest)
-  router.get('/user/rejectRequest/:userID',auth,user.rejectFriendRequest)
-  router.get('/user/other/:userID',auth,user.getOtherUser,user.show)
+  router.get('/user/openFriendRequest',auth,user.openFriendRequest);
+  router.get('/user/checkNotification',auth,user.checkNotification);
+  router.get('/user/readNotification/:notificationID',auth,user.updateReadNotification);
+  router.get('/user/getFriends/:userID',auth,user.getUserFriends);
+  router.get('/user/acceptRequest/:userID',auth,user.acceptFriendRequest);
+  router.get('/user/rejectRequest/:userID',auth,user.rejectFriendRequest);
+  router.get('/user/other/:userID',auth,user.getOtherUser,user.show);
   router.get('/user/:userID',user.show);
   router.patch('/user/:userID',auth, isOwner, user.update,user.show)
   router.post('/user/friendRequest',auth,user.friendRequest)

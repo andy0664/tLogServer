@@ -35,7 +35,7 @@ let userSchema = mongoose.Schema({
 
   tripNotifications:{
     type:Boolean,
-    Default: true
+    "default": true
   },
 
   friends : [{
