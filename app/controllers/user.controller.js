@@ -1,5 +1,8 @@
 import User from '../models/user.model';
 import Trip from '../models/trip.model';
+import mongoose from "mongoose";
+import grid from "gridfs-stream";
+import gm from "gm";
 import FriendRequest from '../models/friendRequest.model';
 
 
@@ -140,3 +143,61 @@ export const getUserFriends = (req,res)=>{
 }
 
 export const show = (req, res) => res.json(req.specUser);
+
+export const image = (req, res) => {
+  try {
+    const gfs = grid(mongoose.connection.db);
+    console.log("id=" + req.params.imageId);
+    let ObjectID = mongoose.mongo.ObjectID;
+    gfs.createReadStream({_id: new ObjectID(req.params.imageId)}).pipe(res);
+  } catch (err) {
+    res.status(500).json({message: err.message})
+  }
+};
+
+export const addImage = function (req, res) {
+  try {
+    const gfs = grid(mongoose.connection.db);
+    const maxDimension = process.env.MAX_IMAGE_DIMENSION || 500;
+    if (req.files.file == null) {
+      res.status(400).json({
+        message: "There needs to be an element called 'file' that contains the image"
+      });
+      return;
+    }
+    const file = req.files.file;
+    const wStream = gfs.createWriteStream({
+      mode: 'w',
+      filename: file.name,
+      content_type: file.type,
+      metadata: {
+        user: req.specUser._id
+      }
+    });
+    const s = gm(file.path).resize(maxDimension).stream().pipe(wStream);
+    s.on('close', file => {
+      const user = req.specUser;
+      user.images.push({
+        description: req.body.description,
+        id: file._id,
+        uploaded: Date.now(),
+        user: user.username
+      });
+      user.save()
+        .then(user => res.json(file))
+        .catch(err => res.status(500).send({
+          message: "Could not add image to User " + err.message
+        }));
+    });
+    s.on('error', error => {
+      res.status(500).send({
+        message: "Could not save image"
+      });
+    });
+  } catch (error) {
+    console.log(error.stack);
+    res.status(500).send({
+      message: "Could not save image " + error.message
+    });
+  }
+};

@@ -2,6 +2,7 @@
  * Created by Andreas on 22/01/2017.
  */
 import * as user from '../controllers/user.controller';
+import multipart from 'connect-multiparty';
 
 
 /*const checkPermission = condition => (req,res,next) =>
@@ -10,6 +11,8 @@ import * as user from '../controllers/user.controller';
 
 const tripOwnerCondition = req => req.user.username === req.trip.creator.local.username;
 const tripOwnerOrAdminCondition = req => tripOwnerCondition(req) || req.user.roles.includes('admin');*/
+
+const multipartMiddleware = multipart();
 
 const isOwner = (req,res,next) =>
   req.body._id === req.user.id ?
@@ -30,6 +33,7 @@ export default (app, router, auth, admin) => {
   router.post('/user/friendRequest',auth,user.friendRequest)
   router.get('/user/checkFriend/:userID',auth,user.checkFriend)
   router.get('/user/removeFriend/:userID',auth,user.removeFriend,user.checkFriend)
+  router.post('/user/:userID/image',auth,multipartMiddleware,user.addImage);
  /* router.post('/trip/addpoi/:tripId',auth,checkPermission(tripOwnerCondition),poi.create,trip.addPOI,trip.show);
   router.patch('/trip/:tripId',auth,checkPermission(tripOwnerCondition),trip.update,trip.show);
   router.post('/trip',auth,trip.create,trip.show);

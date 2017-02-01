@@ -42,6 +42,17 @@ let userSchema = mongoose.Schema({
     type:Schema.Types.ObjectId,
     ref:'User'
   }],
+  images: [
+    {
+      id: Schema.Types.ObjectId,
+      description: String,
+      uploaded: {
+        type: Date,
+        "default": Date.now
+      },
+      user: String
+    }
+  ]
 });
 
 // ## Methods
