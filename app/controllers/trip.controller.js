@@ -5,6 +5,7 @@
 import Trip from '../models/trip.model';
 import Notification from '../models/notification.model';
 import User from '../models/user.model';
+import Comment from '../models/comment.model'
 
 export const show = (req,res) => {
   try {
@@ -81,6 +82,8 @@ export const addPOI = (req,res,next) =>{
 export const remove = (req,res,next) =>{
   try {
     Promise.all(req.trip.pois.map(poi=>poi.remove()))
+      .then(Notification.remove({trip:req.trip._id}))
+      .then(Comment.remove({trip:req.trip._id}))
       .then(req.trip.remove())
       .then(trip => res.status(200).json({message: `Trip was successfully deleted!`}))
       .catch(err => res.status(400).json({message: err.message}))

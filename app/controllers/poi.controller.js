@@ -2,6 +2,7 @@
  * Created by salho on 13.10.16.
  */
 import POI from '../models/poi.model';
+import Trip from '../models/trip.model';
 import mongoose from "mongoose";
 import grid from "gridfs-stream";
 import gm from "gm";
@@ -85,8 +86,10 @@ export const update = (req, res, next) => {
 
 export const destroy = (req, res, next) => {
   try {
-    req.poi.remove()
-      .then(() => next())
+    console.log("Poi delete: "+JSON.stringify(req.poi));
+    Trip.update({_id:req.poi.trip._id},{$pull:{pois:req.poi._id,summCoords:req.poi.sumCoordinates}})
+      .then(req.poi.remove()
+        .then(() => next()))
       .catch(err => res.status(500).json({message: "Could not delete this POI"}))
   } catch (err) {
     res.status(500).json({message: err.message})
