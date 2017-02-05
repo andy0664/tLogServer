@@ -16,6 +16,7 @@ export const create = (req, res, next) => {
   poi.sumCoordinates = req.body.loc.coordinates[0] + req.body.loc.coordinates[1];
   if (req.trip._id) {
     poi.trip = req.trip._id;
+    poi.share= req.trip.share;
   }
   poi.save()
     .then(poi => POI.load(poi._id))
@@ -72,17 +73,18 @@ export const update = (req, res, next) => {
   }
 };
 
-/*export const findByLocation = (req, res,next) => {
+export const findByRange = (req, res,next) => {
   try {
-    let startPoint = parseFloat(req.query.startPoint);
-    let endPoint = parseFloat(req.query.endPoint);
-    POI.find({$and:[{sumCoordinates:{$gte:startPoint}}, {sumCoordinates:{$lte:endPoint}}]}).select('trip')
+    let longitude = parseFloat(req.query.longitude);
+    let latitude = parseFloat(req.query.latitude);
+    let range = parseFloat(req.query.range);
+    POI.find({loc:{$near:{$geometry: { type: "Point",  coordinates: [ 16.3653373718262, 48.2083161614933 ] },$maxDistance: 5000}},share:true}).populate('trip','name')
       .then((data)=> {console.log("Data found: "+JSON.stringify(data));req.trips=data;next();})
       .catch(err => res.status(400).json({message: "This POI could not be updated: " + err.message}));
   } catch (err) {
     res.status(500).json({message: err.message})
   }
-}*/
+}
 
 export const destroy = (req, res, next) => {
   try {

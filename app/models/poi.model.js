@@ -34,6 +34,10 @@ const poiSchema = Schema({
     required: true,
     ref: 'Trip'
   },
+  share:{
+    type: Boolean,
+    "default": false
+  },
   createdAt: {
     type: Date,
     "default": Date.now

@@ -5,7 +5,8 @@
 import Trip from '../models/trip.model';
 import Notification from '../models/notification.model';
 import User from '../models/user.model';
-import Comment from '../models/comment.model'
+import Comment from '../models/comment.model';
+import Poi from '../models/poi.model';
 
 export const show = (req,res) => {
   try {
@@ -112,13 +113,22 @@ export const findByLocation = (req,res)=>{
 
 export const update = (req,res,next) => {
   try {
+    let tmpTrips;
+    let shareState = req.trip.share;
   if (req.body._id && req.trip._id.toString() !== req.body._id) {
     res.status(400).json({message: 'Wrong trip id'});
   } else {
     const trip = Object.assign(req.trip,req.body);
     trip.save()
       .then(trip => Trip.load(trip._id))
-      .then(trips => {req.trip = trip;next();})
+      .then(trips => { tmpTrips=trips;
+      console.log("Req Share2: "+req.trip.share +" Body share2: "+req.body.share);
+        if(shareState!==req.body.share){
+          Promise.all(tmpTrips.pois.map(poi=>Poi.findByIdAndUpdate(poi._id,{$set:{share:tmpTrips.share}})))
+            .then(()=>{req.trip=tmpTrips;next()})
+        }else{
+          req.trip=trips;next()
+        }})
       .catch(err => res.status(400).json({message: err.message}))
   }
   } catch(err) {res.status(500).json({message: err.message})}
