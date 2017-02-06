@@ -21,6 +21,10 @@ const poiSchema = Schema({
       type: [Number]
     }
   },
+  type:{
+    type:String,
+    'default': 'Point'
+  },
   sumCoordinates:{
     type:Number
   },

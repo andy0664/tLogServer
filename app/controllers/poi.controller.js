@@ -73,7 +73,7 @@ export const update = (req, res, next) => {
   }
 };
 
-export const findByRange = (req, res,next) => {
+/*export const findByRange = (req, res,next) => {
   try {
     let longitude = parseFloat(req.query.longitude);
     let latitude = parseFloat(req.query.latitude);
@@ -84,7 +84,7 @@ export const findByRange = (req, res,next) => {
   } catch (err) {
     res.status(500).json({message: err.message})
   }
-}
+}*/
 
 export const destroy = (req, res, next) => {
   try {
