@@ -73,18 +73,20 @@ export const update = (req, res, next) => {
   }
 };
 
-/*export const findByRange = (req, res,next) => {
+export const findByRange = (req, res,next) => {
   try {
-    let longitude = parseFloat(req.query.longitude);
-    let latitude = parseFloat(req.query.latitude);
-    let range = parseFloat(req.query.range);
-    POI.find({loc:{$near:{$geometry: { type: "Point",  coordinates: [ 16.3653373718262, 48.2083161614933 ] },$maxDistance: 5000}},share:true}).populate('trip','name')
+    let longitude1 = parseFloat(req.query.longitude1);
+    let latitude1 = parseFloat(req.query.latitude1);
+    let longitude2 = parseFloat(req.query.longitude2);
+    let latitude2 = parseFloat(req.query.latitude2);
+    console.log("LatLng: "+longitude1+" "+latitude1+" "+longitude2+" "+latitude2);
+    POI.aggregate([{$match:{share:true,loc: {$geoWithin:{$box:[[longitude1,latitude1],[longitude2,latitude2]]}}}},{$group:{_id:"$trip"}}])
       .then((data)=> {console.log("Data found: "+JSON.stringify(data));req.trips=data;next();})
-      .catch(err => res.status(400).json({message: "This POI could not be updated: " + err.message}));
+      .catch(err => res.status(400).json({message: "Could not find Pois by Range: " + err.message}));
   } catch (err) {
     res.status(500).json({message: err.message})
   }
-}*/
+}
 
 export const destroy = (req, res, next) => {
   try {

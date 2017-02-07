@@ -99,12 +99,22 @@ export const count = (req,res,next) =>{
   } catch(err) {res.status(500).json({message: err.message})}
 };
 
-export const findByLocation = (req,res)=>{
+/*export const findByLocation = (req,res)=>{
   try{
     let startPoint = parseFloat(req.query.startPoint);
     let endPoint = parseFloat(req.query.endPoint);
     Trip.find({$and:[{sumCoords:{$gte:startPoint}},{sumCoords:{$lte:endPoint}},{share:true}]}).select('_id name')
       .then(data=>res.json(data))
+      .catch(err => res.status(400).json({message:err.message}))
+  }catch (err){
+    res.status(500).json({message: err.message})
+  }
+}*/
+
+export const findByLocation = (req,res)=>{
+  try{
+   Promise.all(req.trips.map(id=>Trip.find({_id:id}).select('_id name')))
+      .then(data=> res.json(data.map(trip=>trip[0])))
       .catch(err => res.status(400).json({message:err.message}))
   }catch (err){
     res.status(500).json({message: err.message})
